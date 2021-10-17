@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>URL shortener</title>
+  </head>
+  <body>
+    <h1></h1>
+    
+    <form action="" method="POST">
+      <label for="your_name">Ваша ссылка: </label>
+      <input type="text" name="url" value="{{ current_url }}">
+      <input type="submit">
+    </form>
+    <p><a href="{{ short_url }}">{{ short_url }}</a></p>
+    <p>{{ message }}</p>
+  </body>
+</html>

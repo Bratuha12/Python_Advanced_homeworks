@@ -1,3 +1,9 @@
+# users logins
+Users.txt
+
+# IDEA configs
+.idea/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

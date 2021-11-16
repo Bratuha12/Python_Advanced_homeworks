@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Blog</title>
+  </head>
+  <body>
+    <div>
+      {% if request.user.is_authenticated %}
+      <h3>{{ request.user.username }}</h3>
+      <p><a href="/logout">Logout</a></p>
+      {% else %}
+      <p><a href="accounts/login">Login</a></p>
+      <p><a href="register/">Register</a></p>
+      {% endif %}
+    </div>
+    <div>
+      <h2>{{ object.title }}</h2>
+      <p>{{ object.created_by }}</p>
+      <p>{{ object.created_at }}</p>
+      <p>{{ object.text }}</p>
+    </div>
+  </body>
+</html>

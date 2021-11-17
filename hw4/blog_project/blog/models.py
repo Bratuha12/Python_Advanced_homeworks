@@ -27,8 +27,6 @@ class Post(models.Model):
         останется прежней.
         """
         return reverse('post_detail', args=[str(self.pk)])
-    # def get_absolute_url(self):
-    #     return reverse('PostDetail', kwargs={'pk': self.pk})
 
     def save(self, *args, **kwargs):
         """

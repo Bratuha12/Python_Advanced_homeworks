@@ -16,18 +16,23 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from blog.views import create_user, logout_user, PostList, PostDetail, \
-    CreatePostView
+from blog.views import PostList, PostDetail, \
+    CreatePostView, PostUpdate, PostDelete, CreateUser, PostAuthorList
 import django.contrib.auth.views as auth_views
 
 urlpatterns = [
     path('admin12/', admin.site.urls),
-    path('register/', create_user),
-    path('accounts/login',
-         auth_views.LoginView.as_view(template_name='login.html')),
-    path('logout', logout_user),
+    path('register/', CreateUser.as_view(), name='register_user'),
+    path('accounts/login/',
+         auth_views.LoginView.as_view(template_name='login.html'),
+         name='login_user'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='home'),
+         name='logout_user'),
     path('', PostList.as_view(), name='home'),
     path('post/new/', CreatePostView.as_view(), name='post_new'),
-    path('post/<pk>', PostDetail.as_view(), name='post_detail'),
-
+    path('post/<int:pk>/', PostDetail.as_view(), name='post_detail'),
+    path('post/<int:pk>/edit/', PostUpdate.as_view(), name='post_edit'),
+    path('post/<int:pk>/delete/', PostDelete.as_view(), name='post_delete'),
+    path('post/author_posts/', PostAuthorList.as_view(),
+         name='post_author_list'),
 ]

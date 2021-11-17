@@ -1,44 +1,25 @@
-from django.contrib.auth import logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render, redirect
-from django.db import models
-
-
-# Create your views here.
-from django.utils.text import slugify
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
-
+from django.http import Http404
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, \
+    DeleteView
 from blog.models import Post
 
 
-def create_user(request):
+class CreateUser(CreateView):
     """
-    Функция создаёт нового пользователя с помощью формы для регистрации.
-    Если форма для регистрации заполнена и проверена, сохраняет нового
-    пользователя в базу данных auth_user с правами персонала (атрибут is_staff)
-    и редиректит на главную страницу.
+    Класс создания нового пользователя. После успешного создания пользователя
+    происходит редирект на страницу входа.
     """
-    form = UserCreationForm(request.POST or None)
-    if form.is_bound and form.is_valid():
-        user = form.save()
-        user.is_staff = True
-        user.save()
-        return redirect('/')
-    return render(request, 'register.html', {'form': form})
-
-
-def logout_user(request):
-    """
-    Функция производит логаут пользователя и редиректит на главную страницу.
-    """
-    logout(request)
-    return redirect('/')
+    form_class = UserCreationForm
+    success_url = reverse_lazy('login_user')
+    template_name = 'register.html'
 
 
 class PostList(ListView):
     """
-    Класс страницы со списком всех постов. Используется пагинация и сортировка
+    Класс со списком всех постов. Используется пагинация и сортировка
     по дате создания.
     """
     model = Post
@@ -47,14 +28,30 @@ class PostList(ListView):
     ordering = '-created_at'
 
 
+class PostAuthorList(ListView):
+    """
+    Класс со списком постов авторизованного пользователя. Используется пагинация
+    и сортировка по дате создания. Фильтрация постов осуществляется путём
+    переопределения метода get_queryset.
+    """
+    model = Post
+    template_name = 'home.html'
+    paginate_by = 5
+    ordering = '-created_at'
+
+    def get_queryset(self):
+        queryset = super(PostAuthorList, self).get_queryset()
+        queryset = queryset.filter(created_by=self.request.user)
+        return queryset
+
+
 class PostDetail(DetailView):
     """
-    Класс страницы поста отображает всё содержимое поста, с датой создания и
-    автором.
+    Класс отображения поста - отображает всё содержимое поста, с датой создания
+    и автором.
     """
     model = Post
     template_name = 'post_detail.html'
-    # template_name = 'post.html'
 
 
 class CreatePostView(LoginRequiredMixin, CreateView):
@@ -65,19 +62,46 @@ class CreatePostView(LoginRequiredMixin, CreateView):
     model = Post
     fields = ['title', 'text']
     template_name = 'post_new.html'
-    # template_name = 'new_post.html'
-    success_url = '/'
-    login_url = '/accounts/login'
+    login_url = 'login_user'
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
         return super().form_valid(form)
 
 
-class PostUpdate(UpdateView):
+class PostUpdate(LoginRequiredMixin, UpdateView):
     """
-    Класс страницы редактирования поста.
+    Класс, отвечающий за редактирование страницы поста. Закрыт авторизацией.
+    Через переопределение метода dispatch реализована проверка прав
+    на редактирование поста (редактировать пост имеет право только автор поста).
     """
     model = Post
     fields = ['title', 'text']
     template_name = 'post_edit.html'
+    login_url = 'login_user'
+
+    def dispatch(self, request, *args, **kwargs):
+        obj = self.get_object()
+        if obj.created_by != self.request.user:
+            raise Http404("У вас нет прав редактировать этот пост!")
+        return super(PostUpdate, self).dispatch(request, *args, **kwargs)
+
+
+class PostDelete(LoginRequiredMixin, DeleteView):
+    """
+    Класс, отвечающий за удаление поста. После завершения удаления записи
+    из БД пользователь будет перенаправлен на главную страницу (home)
+    с помощью метода reverse_lazy. Закрыт авторизацией. Через переопределение
+    метода dispatch реализована проверка прав на удаление поста (удалять пост
+    имеет право только автор поста).
+    """
+    model = Post
+    template_name = 'post_delete.html'
+    success_url = reverse_lazy('home')
+    login_url = 'login_user'
+
+    def dispatch(self, request, *args, **kwargs):
+        obj = self.get_object()
+        if obj.created_by != self.request.user:
+            raise Http404("У вас нет прав удалять этот пост!")
+        return super(PostDelete, self).dispatch(request, *args, **kwargs)

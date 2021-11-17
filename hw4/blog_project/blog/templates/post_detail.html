@@ -1,11 +1,16 @@
 <!-- templates/post_detail.html -->
 {% extends 'base.html' %}
- 
+
 {% block content %}
-  <div class='post-entry'>
-    <h2>{{ post.title }}</h2>
-    <p>{{ post.body }}</p>
-  </div>
- 
-  <a href='{% url 'post_edit' post.pk %}'>+ Редактирование поста</a>
+    <div class='post-entry'>
+        <h2>{{ object.title }}</h2>
+        <p>{{ object.created_by }}</p>
+        <p>{{ object.created_at }}</p>
+        <p>{{ object.text }}</p>
+    </div>
+
+    {% if object.created_by == request.user %}
+        <p><a href="{% url 'post_edit' object.pk %}">+ Редактирование поста</a></p>
+        <p><a href="{% url 'post_delete' object.pk %}">+ Удаление поста блога</a></p>
+    {% endif %}
 {% endblock content %}

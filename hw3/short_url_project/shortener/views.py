@@ -79,7 +79,7 @@ def random_url(min_=5, max_=8) -> str:
         return random_str
 
 
-@login_required(login_url='accounts/login')
+@login_required(login_url='login_user')
 def handler(request):
     """
     Функция-обработчик при получении метода POST считывает строку из поля

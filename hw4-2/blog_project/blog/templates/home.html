@@ -1,0 +1,19 @@
+<!-- templates/home.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+{% for post in page_obj %}
+    <div class="post-entry">
+        <h2><a href="/post/{{ post.pk }}">{{ post.title }}</a></h2>
+    </div>
+{% endfor %}
+<div>
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+    {% endif %}
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Next</a>
+    {% endif %}
+</div>
+{% endblock content %}

@@ -8,6 +8,7 @@ from random import choice, randrange
 from string import ascii_letters, digits
 from shortener.models import UrlShortener
 
+
 def create_user(request):
     """
     Функция создаёт нового пользователя с помощью формы для регистрации.
@@ -79,7 +80,7 @@ def random_url(min_=5, max_=8) -> str:
         return random_str
 
 
-@login_required(login_url='login_user')
+@login_required(login_url='accounts/login')
 def handler(request):
     """
     Функция-обработчик при получении метода POST считывает строку из поля

@@ -1,0 +1,17 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "*"
+celery = {extras = ["redis"], version = "*"}
+redis = "*"
+flower = "*"
+django-celery-beat = "*"
+django-celery-results = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"
